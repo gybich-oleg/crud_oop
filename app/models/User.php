@@ -10,7 +10,7 @@ class User
     {
         $this->database = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
         if ($this->database->connect_error) {
-            die('Помилка підключення: ' . $this->database->connect_error);
+            die('Error connecting: ' . $this->database->connect_error);
         }
     }
 

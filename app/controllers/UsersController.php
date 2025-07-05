@@ -29,9 +29,9 @@ class UsersController
             $email = trim($_POST['email']);
 
             if ($this->userModel->createUser($firstName, $lastName, $email)) {
-                $_SESSION['success_message'] = 'Користувача створено!';
+                $_SESSION['success_message'] = 'User created!';
             } else {
-                $_SESSION['success_message'] = 'Помилка при створенні!';
+                $_SESSION['success_message'] = 'Error creating user!';
             }
 
             $this->response->redirect('/?controller=users&action=list');
@@ -52,9 +52,9 @@ class UsersController
     {
         $id = $_GET['id'] ?? null;
         if ($id && $this->userModel->deleteUser((int)$id)) {
-            $_SESSION['success_message'] = 'Користувача видалено!';
+            $_SESSION['success_message'] = 'Users deleted!';
         } else {
-            $_SESSION['success_message'] = 'Помилка при видаленні!';
+            $_SESSION['success_message'] = 'Error deleting user!';
         }
         $this->response->redirect('/?controller=users&action=list');
     }
@@ -83,9 +83,9 @@ class UsersController
             $email = trim($_POST['email']);
 
             if ($this->userModel->updateUser($id, $firstName, $lastName, $email)) {
-                $_SESSION['success_message'] = 'Користувача оновлено!';
+                $_SESSION['success_message'] = 'User updated!';
             } else {
-                $_SESSION['success_message'] = 'Помилка при оновленні!';
+                $_SESSION['success_message'] = 'Error updating user!';
             }
             $this->response->redirect('/?controller=users&action=list');
         } else {
