@@ -17,7 +17,7 @@
             <th>First name</th>
             <th>Last name</th>
             <th>Email</th>
-            <th>Actions</th> <!-- Додаємо новий стовпець -->
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
