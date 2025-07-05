@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Сервіс Nginx для обслуговування веб-запитів
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80" # Мапимо порт 80 контейнера на порт 80 хостової машини
+    volumes:
+      # Монтуємо поточну директорію проекту в контейнер як кореневу директорію веб-сервера
+      - ./:/var/www/html
+      # Монтуємо файл конфігурації Nginx
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    # Nginx залежить від PHP-FPM, тому він запуститься після PHP
+    depends_on:
+      - php
+    networks:
+      - app-network # Додаємо сервіс до нашої мережі додатку
+
+  # Сервіс PHP-FPM для обробки PHP-скриптів
+  php:
+    # Збірка образу PHP з файлу Dockerfile в папці ./php
+    build:
+      context: ./php
+    volumes:
+      # Монтуємо поточну директорію проекту в контейнер
+      - ./:/var/www/html
+    networks:
+      - app-network # Додаємо сервіс до нашої мережі додатку
+
+  # Сервіс MySQL для бази даних
+  mysql:
+    image: mysql:8.0 # Використовуємо образ MySQL версії 8.0
+    # Перезапускати контейнер, якщо він зупиниться
+    restart: always
+    environment:
+      # Змінні середовища для налаштування бази даних
+      MYSQL_ROOT_PASSWORD: root # Пароль для root користувача (зміни на продакшені!)
+      MYSQL_DATABASE: crud_oop # Назва бази даних для твого додатку
+      #MYSQL_USER: root # Ім'я користувача для доступу до бази даних
+      #MYSQL_PASSWORD: root # Пароль для користувача бази даних
+    # Немає потреби мапити порт MySQL на хост, якщо доступ лише з контейнерів
+    # ports:
+    #   - "3306:3306" # Якщо потрібен доступ ззовні Docker
+    volumes:
+      # Це найважливіший рядок для збереження даних!
+      # 'db_data' - це іменований том Docker, який зберігатиме дані MySQL
+      # '/var/lib/mysql' - це стандартний шлях, де MySQL зберігає свої дані в контейнері
+      - db_data:/var/lib/mysql
+      # Якщо потрібно ініціалізувати базу даних SQL-скриптами при першому запуску:
+      # - ./db:/docker-entrypoint-initdb.d
+    networks:
+      - app-network # Додаємо сервіс до нашої мережі додатку
+
+  # Сервіс phpMyAdmin для управління базою даних
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin # Використовуємо офіційний образ phpMyAdmin
+    ports:
+      - "8081:80" # Мапимо порт 80 контейнера phpMyAdmin на порт 8081 хостової машини
+    environment:
+      # Налаштування підключення phpMyAdmin до MySQL
+      PMA_HOST: mysql # Назва сервісу MySQL в docker-compose
+      PMA_USER: root # Користувач для входу в phpMyAdmin (може бути root або user)
+      PMA_PASSWORD: root # Пароль для цього користувача
+    depends_on:
+      - mysql # phpMyAdmin залежить від MySQL
+    networks:
+      - app-network # Додаємо сервіс до нашої мережі додатку
+
+# Визначення мережі для внутрішнього зв'язку між контейнерами
+networks:
+  app-network:
+    driver: bridge
+
+# Визначення томів для збереження даних
+volumes:
+  db_data: # Визначаємо іменований том для даних MySQL
